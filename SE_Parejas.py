@@ -13,28 +13,24 @@ def abrir_ventana_experto():
     def guardar_en_base_de_hechos():
 
         global imagen_blob
-        genero = combo_Genero.get()
-        edad = combo_Edad.get()
-        orientacion_sex = combo_Orientacion.get()
-        intereses = combo_Intereses.get()
+        componente = combo_Componente.get()
+        marca = combo_Marca.get()
+        modelo = combo_Modelo.get()
+        especificaciones = text_Especificaciones.get("0.0", tk.END)
+        precio = text_Precio.get("0.0", tk.END)
 
-        respuesta = text_respuesta.get("0.0", tk.END)
-        explicacion = text_explicacion.get("0.0", tk.END)
-
-        conexion = mysql.connector.connect(user='root',password='root',
-                                        host='localhost',
-                                        database='se_database',
-                                        port='3306')
-        print(conexion)
+        conexion = mysql.connector.connect(user='root', password='root',
+                                           host='localhost',
+                                           database='se_database',
+                                           port='3306')
         cursor = conexion.cursor()
         # Valores para la base de datos
-        valores = (genero, edad, orientacion_sex, intereses, respuesta, explicacion, imagen_blob)
+        valores = (componente, marca, modelo, especificaciones, precio, imagen_blob)
 
         # Crea la consulta SQL para insertar un nuevo registro
-        consulta = "INSERT INTO parejas(genero, edad, orientacion_sex, interes, resp, explicacion, img) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+        consulta = "INSERT INTO componentes(componente, marca, modelo, especificaciones, precio, imagen) VALUES (%s,%s,%s,%s,%s,%s)"
 
         # Ejecuta la consulta con los valores
-        valores = (genero, edad, orientacion_sex, intereses, respuesta, explicacion, imagen_blob)
         cursor.execute(consulta, valores)
 
         # Confirma la inserción de datos en la base de datos
@@ -48,7 +44,7 @@ def abrir_ventana_experto():
     def cargar_imagen():
 
         global imagen_blob
-        ruta_imagen = filedialog.askopenfilename(title="Seleccionar Imagen", filetypes=[("Archivos de imagen", "*.webp;*.png;*.jpg;*.jpeg;*.gif")])
+        ruta_imagen = filedialog.askopenfilename(title="Seleccionar Imagen", filetypes=[("Archivos de imagen", ".webp;.png;.jpg;.jpeg;*.gif")])
 
         if ruta_imagen:
             imagen = Image.open(ruta_imagen)
@@ -68,7 +64,7 @@ def abrir_ventana_experto():
     global ventana_experto
     ventana.withdraw()  # Oculta la ventana principal
     ventana_experto = tk.Toplevel(ventana)  # Crea una nueva ventana secundaria
-    ventana_experto.title("Sistema Experto para escoger novio/a para tu hija/o")
+    ventana_experto.title("Ensamblaje de PC")
     ancho_ventana = 625
     alto_ventana = 500
 
@@ -87,109 +83,75 @@ def abrir_ventana_experto():
     fuente_Title = ('Arial', 15)  # Tipo de letra Arial, tamaño 16
 
     # Titulo
-    etiqueta_titulo = ttk.Label(ventana_experto, text="Sistema Experto escoger novio/a para tu hija/o:", font=fuente_Title)
-    etiqueta_titulo.grid(row=0, column = 0, columnspan=2, pady=10)
+    etiqueta_titulo = ttk.Label(ventana_experto, text="Ensamblaje de PC:", font=fuente_Title)
+    etiqueta_titulo.grid(row=0, column=0, columnspan=2, pady=10)
 
     # Configurar las columnas para expandirse
     ventana_experto.columnconfigure(0, weight=1)
     ventana_experto.columnconfigure(1, weight=1)
 
-    # Etiqueta y Combo Box para el Genero
-    Genero = {
-        "Masculino":"Ser humano que nacio Hombre y se identifica como tal",
-        "Femenino": "Ser humano que nacio Mujer y se identifica como tal",
-        "No binario": "Ser humano que nacio Hombre/Mujer pero ya no se identifica como tal"
-    }
-    etiqueta_Genero = ttk.Label(ventana_experto, text="¿Qué género es tu hijo?:")
-    etiqueta_Genero.grid(row=1, column=0, padx=(20,0), pady=10, sticky="w")
+    # Etiqueta y Combo Box para el Componente
+    componentes = ["Procesador", "Tarjeta Gráfica", "Memoria RAM", "Almacenamiento", "Fuente de Poder", "Placa Base"]
+    etiqueta_Componente = ttk.Label(ventana_experto, text="Componente:")
+    etiqueta_Componente.grid(row=1, column=0, padx=(20,0), pady=10, sticky="w")
 
-    combo_Genero = ttk.Combobox(ventana_experto, values=list(Genero.keys()), state="readonly")
-    combo_Genero.grid(row=1, column=0, padx=(147,0), pady=10, sticky ="w")
+    combo_Componente = ttk.Combobox(ventana_experto, values=componentes, state="readonly")
+    combo_Componente.grid(row=1, column=1, padx=(20,0), pady=10, sticky="w")
 
-    # Etiqueta y Combo Box para la Edad
-    Edad = { 
-        "16-18": "Puberto",
-        "19-24": "Adolescente",
-        "25-30": "Adulto joven",
-        "31-35": "Adulto"
-    } 
+    # Etiqueta y Combo Box para la Marca
+    marcas = ["Intel", "AMD", "NVIDIA", "Corsair", "ASUS"]
+    etiqueta_Marca = ttk.Label(ventana_experto, text="Marca:")
+    etiqueta_Marca.grid(row=2, column=0, padx=(20,0), pady=10, sticky="w")
 
-    etiqueta_Edad = ttk.Label(ventana_experto, text="¿Que edad tiene su hijo/a?:")
-    etiqueta_Edad.grid(row=2, column=0, padx=(20,0), pady=10, sticky ="w")
+    combo_Marca = ttk.Combobox(ventana_experto, values=marcas, state="readonly")
+    combo_Marca.grid(row=2, column=1, padx=(20,0), pady=10, sticky="w")
 
-    combo_Edad = ttk.Combobox(ventana_experto, values=list(Edad.keys()), state="readonly")
-    combo_Edad.grid(row=2, column=0, padx=(207,0), pady=10, sticky ="w")
+    # Etiqueta y Combo Box para el Modelo
+    modelos = ["Core i9", "Ryzen 9", "RTX 3090", "GTX 1660", "DDR4", "DDR3", "SSD", "HDD", "1000W", "750W", "Z490", "B450"]
+    etiqueta_Modelo = ttk.Label(ventana_experto, text="Modelo:")
+    etiqueta_Modelo.grid(row=3, column=0, padx=(20,0), pady=10, sticky="w")
 
-    # Etiqueta y Combo Box para Orientación Sexual
-    Orientacion_Sex = {
-        "Heterosexual":"Heterosexual",
-        "Bisexual":"Bisexual",
-        "Homosexual":"Homosexual",
-    }
-    etiqueta_Orientacion = ttk.Label(ventana_experto, text="¿Que orientación sexual tiene tu hija/hijo?:")
-    etiqueta_Orientacion.grid(row=3, column=0, padx=(20,0), pady=5, sticky ="w")
+    combo_Modelo = ttk.Combobox(ventana_experto, values=modelos, state="readonly")
+    combo_Modelo.grid(row=3, column=1, padx=(20,0), pady=10, sticky="w")
 
-    combo_Orientacion = ttk.Combobox(ventana_experto, values=list(Orientacion_Sex.keys()), state="readonly")
-    combo_Orientacion.grid(row=3, column=0, padx=(300,0), pady=5, sticky ="w")
+    # Etiqueta y área de texto para Especificaciones
+    etiqueta_Especificaciones = ttk.Label(ventana_experto, text="Especificaciones:")
+    etiqueta_Especificaciones.grid(row=4, column=0, padx=(20,0), pady=10, sticky="w")
 
-    # Etiqueta y combo box para los Intereses
-    Intereses = { 
-        "Música":"Música",
-        "Libros": "Libros",
-        "Películas": "Películas",
-        "Deportes": "Deportes",
-        "Viajes": "Viajes",
-        "Animales": "Animales"
-    }
-    etiqueta_Intereses = ttk.Label(ventana_experto, text="¿Que intereses tiene tu hija/o?:")
-    etiqueta_Intereses.grid(row=5, column=0, padx=(20,0), pady=10, sticky ="w")
+    text_Especificaciones = scrolledtext.ScrolledText(ventana_experto, wrap=tk.WORD, width=42, height=5)
+    text_Especificaciones.grid(row=4, column=1, padx=(20,0), pady=10, sticky="w")
 
-    combo_Intereses = ttk.Combobox(ventana_experto, values=list(Intereses.keys()), state="readonly")
-    combo_Intereses.grid(row=5, column=0, padx=(224,0), pady=10, sticky ="w")
+    # Etiqueta y área de texto para Precio
+    etiqueta_Precio = ttk.Label(ventana_experto, text="Precio:")
+    etiqueta_Precio.grid(row=5, column=0, padx=(20,0), pady=10, sticky="w")
 
-    # Boton Agregar Imagen
+    text_Precio = scrolledtext.ScrolledText(ventana_experto, wrap=tk.WORD, width=42, height=1)
+    text_Precio.grid(row=5, column=1, padx=(20,0), pady=10, sticky="w")
+
+    # Botón para cargar imagen
     boton_img = ttk.Button(ventana_experto, text="Subir imagen", command=cargar_imagen)
-    boton_img.grid(row=6, column=0, padx=(370,0), pady= 5)
-
-    # Crear la primera área de texto
-    text_respuesta = scrolledtext.ScrolledText(ventana_experto, wrap=tk.WORD, width=42, height=5)
-    text_respuesta.grid(row=7, column=0, padx=(20,0), pady=10, sticky ="w")
-
-    # Crear la segunda área de texto debajo de la primera
-    text_explicacion = scrolledtext.ScrolledText(ventana_experto, wrap=tk.WORD, width=42, height=5)
-    text_explicacion.grid(row=8, column=0, padx=(20,0), pady=10, sticky ="w")
-
-    # Definir el tamaño deseado
-    nuevo_tamano = (200, 200)  # Cambia estos valores según tu preferenScia
-
-    # Redimensionar la imagen
-    imagen_redimensionada = imagen_pillow.resize(nuevo_tamano)
-
-    # Convertir la imagen a formato Tkinter
-    imagen_tk = ImageTk.PhotoImage(imagen_redimensionada)
+    boton_img.grid(row=6, column=0, padx=(370,0), pady=5)
 
     # Crear un widget Label para mostrar la imagen
-    etiqueta_imagen = tk.Label(ventana_experto, image=imagen_tk)
-    etiqueta_imagen.grid(row=7, rowspan=2, column=0, padx=(380,0))
+    etiqueta_imagen = tk.Label(ventana_experto)
+    etiqueta_imagen.grid(row=7, column=0, rowspan=2, padx=(380,0), pady=5)
 
-    # Botón para abrir modo usuario
-    boton_modo_usuario = ttk.Button(ventana_experto, text="Regresar al modo usuario", command=abrir_ventana_usuario)
-    boton_modo_usuario.grid(row=9, column=0, padx=(20,0), sticky ="w")
-
-    # Botón para Guardar los Datos
+    # Botón para guardar los datos
     boton_guardar_datos = ttk.Button(ventana_experto, text="Guardar datos", command=guardar_en_base_de_hechos)
     boton_guardar_datos.grid(row=9, column=0, padx=(20,0))
-    # ----------------------------CIERRE DE INTERFAZ DE USUARIO EXPERTO-----------------------------#=====================
+
+    # Botón para regresar al modo usuario
+    boton_modo_usuario = ttk.Button(ventana_experto, text="Regresar al modo usuario", command=abrir_ventana_usuario)
+    boton_modo_usuario.grid(row=9, column=1, padx=(20,0))
 
 def abrir_ventana_usuario():
-    ventana_experto.destroy() # Cierra la ventana experto
+    ventana_experto.destroy()  # Cierra la ventana experto
     ventana.deiconify()  # Muestra la ventana principal
 
-
-# ----------------------------INTERFAZ DE USUARIO NORMAL-----------------------------#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ----------------------------INTERFAZ DE USUARIO NORMAL-----------------------------#~~~~~~~~~~~
 
 ventana = tk.Tk()
-ventana.title("Sistema Experto para escoger novio/a para tu hija/o")
+ventana.title("Ensamblaje de PC")
 ancho_ventana = 625
 alto_ventana = 500
 
@@ -208,7 +170,7 @@ ventana.geometry(f"{ancho_ventana}x{alto_ventana}+{x_pos}+{y_pos}")
 fuente_Title = ('Arial', 18)  # Tipo de letra Arial, tamaño 16
 
 # Titulo
-etiqueta_titulo = ttk.Label(ventana, text="Sistema Experto para escoger novio/a para tu hija/o:", font=fuente_Title)
+etiqueta_titulo = ttk.Label(ventana, text="Ensamblaje de PC", font=fuente_Title)
 etiqueta_titulo.grid(row=0, column = 0, columnspan=2, pady=10)
 
 # Configurar las columnas para expandirse
@@ -216,57 +178,41 @@ ventana.columnconfigure(0, weight=1)
 ventana.columnconfigure(1, weight=1)
 
 # Etiqueta y Combo Box para el Genero
-Genero = {
-    "Masculino":"Ser humano que nacio Hombre y se identifica como tal",
-    "Femenino": "Ser humano que nacio Mujer y se identifica como tal",
-    "No binario": "Ser humano que nacio Hombre/Mujer, pero ya no se identifica como tal"
+Marca = {
+    "Intel":"Marca para procesadores Intel",
+    "AMD" : "Marca para procesadores AMD"
 }
-etiqueta_Genero = ttk.Label(ventana_experto, text="¿Qué género es tu hijo?:")
-etiqueta_Genero.grid(row=1, column=0, padx=(20,0), pady=10, sticky="w")
+etiqueta_Marca = ttk.Label(ventana_experto, text="¿Qué marca prefiere?")
+etiqueta_Marca.grid(row=1, column=0, padx=(20,0), pady=10, sticky="w")
 
-combo_Genero = ttk.Combobox(ventana_experto, values=list(Genero.keys()), state="readonly")
-combo_Genero.grid(row=1, column=0, padx=(147,0), pady=10, sticky ="w")
+combo_Marca = ttk.Combobox(ventana_experto, values=list(Marca.keys()), state="readonly")
+combo_Marca.grid(row=1, column=0, padx=(147,0), pady=10, sticky ="w")
 
 # Etiqueta y Combo Box para la Edad
-Edad = { 
-    "16-18": "Puberto",
-    "19-24": "Adolescente",
-    "25-30": "Adulto joven",
-    "31-35": "Adulto"
+Presupuesto = { 
+    "5000-8000": "Bajo",
+    "8000-12000": "Medio",
+    "12000-20000": "Alto",
+    "No importa el presupuesto": "Ilimitado"
 } 
 
-etiqueta_Edad = ttk.Label(ventana_experto, text="¿Que edad tiene su hijo/a?:")
-etiqueta_Edad.grid(row=2, column=0, padx=(20,0), pady=10, sticky ="w")
+etiqueta_Presupuesto = ttk.Label(ventana_experto, text="¿Que presupuesto tiene?:")
+etiqueta_Presupuesto.grid(row=2, column=0, padx=(20,0), pady=10, sticky ="w")
 
-combo_Edad = ttk.Combobox(ventana_experto, values=list(Edad.keys()), state="readonly")
-combo_Edad.grid(row=2, column=0, padx=(207,0), pady=10, sticky ="w")
+combo_Presupuesto = ttk.Combobox(ventana_experto, values=list(Presupuesto.keys()), state="readonly")
+combo_Presupuesto.grid(row=2, column=0, padx=(207,0), pady=10, sticky ="w")
 
 # Etiqueta y Combo Box para Orientación Sexual
-Orientacion_Sex = {
-    "Heterosexual":"Heterosexual",
-    "Bisexual":"Bisexual",
-    "Homosexual":"Homosexual",
+Uso = {
+    "Gaming":"Dedicado a juegos",
+    "Arquitectura":"Dedicado a diseño arquitectónico",
+    "Diseño gráfico":"Dedicado a diseño gráfico"
 }
-etiqueta_Orientacion = ttk.Label(ventana_experto, text="¿Que orientación sexual tiene tu hija/hijo?:")
-etiqueta_Orientacion.grid(row=3, column=0, padx=(20,0), pady=5, sticky ="w")
+etiqueta_Uso = ttk.Label(ventana_experto, text="¿Que uso le dará a su PC?:")
+etiqueta_Uso.grid(row=3, column=0, padx=(20,0), pady=5, sticky ="w")
 
-combo_Orientacion = ttk.Combobox(ventana_experto, values=list(Orientacion_Sex.keys()), state="readonly")
-combo_Orientacion.grid(row=3, column=0, padx=(300,0), pady=5, sticky ="w")
-
-# Etiqueta y combo box para tiempo de los Intereses
-Intereses = { # Cambier este noSQL por el que tenemos
-    "Música":"Música",
-    "Libros": "Libros",
-    "Películas": "Películas",
-    "Deportes": "Deportes",
-    "Viajes": "Viajes",
-    "Animales": "Animales"
-}
-etiqueta_Intereses = ttk.Label(ventana_experto, text="¿Que intereses tiene tu hija/o?:")
-etiqueta_Intereses.grid(row=5, column=0, padx=(20,0), pady=10, sticky ="w")
-
-combo_Intereses = ttk.Combobox(ventana_experto, values=list(Intereses.keys()), state="readonly")
-combo_Intereses.grid(row=5, column=0, padx=(224,0), pady=10, sticky ="w")
+combo_Uso = ttk.Combobox(ventana_experto, values=list(Uso.keys()), state="readonly")
+combo_Uso.grid(row=3, column=0, padx=(300,0), pady=5, sticky ="w")
 
 # Crear la primera área de texto
 text_respuesta = scrolledtext.ScrolledText(ventana, wrap=tk.WORD, width=42, height=5, state=tk.DISABLED)
