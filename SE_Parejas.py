@@ -226,10 +226,10 @@ text_explicacion.grid(row=8, column=0, padx=(20,0), pady=10, sticky ="w")
 
 # METODO PARA MOSTRAR LA EXPLICACION
 def mostrar_explicacion():
-    genero = combo_Genero.get()
-    edad = combo_Edad.get()
-    orientacion_sex = combo_Orientacion.get()
-    intereses = combo_Intereses.get()
+    marca = combo_Marca.get()
+    presupuesto = combo_Presupuesto.get()
+    uso = combo_Uso.get()
+
 
     conexion2 = mysql.connector.connect(user='root',password='root',
                                     host='localhost',
@@ -238,7 +238,7 @@ def mostrar_explicacion():
     print(conexion2)
     cursor2 = conexion2.cursor()
 
-    valores = (genero, edad, orientacion_sex, intereses)
+    valores = (marca, presupuesto, uso)
 
     # Crea la consulta SQL para rescatar una imagen
     consulta_existencia = "SELECT explicacion FROM parejas WHERE genero = %s AND edad = %s AND orientacion_sex = %s AND interes = %s"
@@ -277,10 +277,9 @@ def mostrar_explicacion():
 
 # LIMPIA LAS CASILLAS CUANDO SE QUIERE REALIZAR OTRA CONSULTA
 def limpiar_casillas():
-    combo_Edad.set("")
-    combo_Genero.set("")
-    combo_Orientacion.set("")
-    combo_Intereses.set("")
+    combo_Marca.set("")
+    combo_Presupuesto.set("")
+    combo_Uso.set("")
     text_explicacion.config(state=tk.NORMAL)
     text_explicacion.delete('1.0', tk.END)
     text_explicacion.insert(tk.END, "")
@@ -308,11 +307,9 @@ etiqueta_imagen.grid(row=7, rowspan=2, column=0, padx=(380,0))
 
 # MÉTODO PARA MOSTRAR LA IMAGEN
 def obtener_img():
-    genero = combo_Genero.get()
-    edad = combo_Edad.get()
-    orientacion_sex = combo_Orientacion.get()
-    intereses = combo_Intereses.get()
-
+    marca = combo_Marca.get()
+    presupuesto = combo_Presupuesto.get()
+    uso = combo_Uso.get()
     # CONEXION CON LA BD PARA VER SI COINCIDEN LOS DATOS CON ALGO YA GUARDADO
     conexion3 = mysql.connector.connect(user='root',password='root',
                                     host='localhost',
@@ -321,7 +318,7 @@ def obtener_img():
     print(conexion3)
     cursor3 = conexion3.cursor()
 
-    valores = (genero, edad, orientacion_sex, intereses)
+    valores = (marca, presupuesto, uso)
 
     consulta_imagen = "SELECT img FROM parejas WHERE genero = %s AND edad = %s AND orientacion_sex = %s AND interes = %s"
 
@@ -382,10 +379,9 @@ def llamar_funciones():
 
 # MÉTODO PARA MOSTRAR LA RESPUESTA
 def obtener_consulta():
-    genero = combo_Genero.get()
-    edad = combo_Edad.get()
-    orientacion_sex = combo_Orientacion.get()
-    intereses = combo_Intereses.get()
+    marca = combo_Marca.get()
+    presupuesto = combo_Presupuesto.get()
+    uso = combo_Uso.get()
 
     # CONEXION CON LA BD PARA VER SI COINCIDEN LOS DATOS CON ALGO YA GUARDADO
     conexion2 = mysql.connector.connect(user='root',password='root',
@@ -395,7 +391,7 @@ def obtener_consulta():
     print(conexion2)
     cursor2 = conexion2.cursor()
 
-    valores = (genero, edad, orientacion_sex, intereses)
+    valores = (marca, presupuesto, uso)
 
     consulta_existencia = "SELECT resp FROM parejas WHERE genero = %s AND edad = %s AND orientacion_sex = %s AND interes = %s"
 
