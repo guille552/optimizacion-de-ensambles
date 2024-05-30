@@ -1,39 +1,23 @@
+import csv
 import random
 import tkinter as tk
 from tkinter import ttk
 
-# Ejemplo de posibles genes (componentes)
-all_possible_genes = [
-    {'component': 'Procesador', 'brand': 'Intel', 'model': 'i9', 'price': 500},
-    {'component': 'Procesador', 'brand': 'Intel', 'model': 'i7', 'price': 400},
-    {'component': 'Procesador', 'brand': 'Intel', 'model': 'i5', 'price': 300},
-    {'component': 'Procesador', 'brand': 'AMD', 'model': 'Ryzen 9', 'price': 450},
-    {'component': 'Procesador', 'brand': 'AMD', 'model': 'Ryzen 7', 'price': 400},
-    {'component': 'Procesador', 'brand': 'AMD', 'model': 'Ryzen 5', 'price': 350},
-    {'component': 'GPU', 'brand': 'NVIDIA', 'model': 'RTX 3080', 'price': 1000},
-    {'component': 'GPU', 'brand': 'NVIDIA', 'model': 'RTX 3070', 'price': 800},
-    {'component': 'GPU', 'brand': 'NVIDIA', 'model': 'RTX 3060', 'price': 600},
-    {'component': 'GPU', 'brand': 'AMD', 'model': 'RX 6900 XT', 'price': 900},
-    {'component': 'GPU', 'brand': 'AMD', 'model': 'RX 6800 XT', 'price': 800},
-    {'component': 'GPU', 'brand': 'AMD', 'model': 'RX 6700 XT', 'price': 700},
-    {'component': 'RAM', 'brand': 'Corsair', 'model': '16GB', 'price': 200},
-    {'component': 'RAM', 'brand': 'Corsair', 'model': '32GB', 'price': 350},
-    {'component': 'RAM', 'brand': 'G.Skill', 'model': '16GB', 'price': 150},
-    {'component': 'RAM', 'brand': 'G.Skill', 'model': '32GB', 'price': 300},
-    {'component': 'RAM', 'brand': 'Kingston', 'model': '16GB', 'price': 180},
-    {'component': 'RAM', 'brand': 'Kingston', 'model': '32GB', 'price': 330},
-    {'component': 'Procesador', 'brand': 'Intel', 'model': 'i3', 'price': 200},
-    {'component': 'Procesador', 'brand': 'AMD', 'model': 'Ryzen 3', 'price': 250},
-    {'component': 'GPU', 'brand': 'NVIDIA', 'model': 'GTX 1660', 'price': 500},
-    {'component': 'GPU', 'brand': 'AMD', 'model': 'RX 5600 XT', 'price': 550},
-    {'component': 'RAM', 'brand': 'Crucial', 'model': '16GB', 'price': 160},
-    {'component': 'RAM', 'brand': 'Crucial', 'model': '32GB', 'price': 310},
-    {'component': 'Motherboard', 'brand': 'ASUS', 'model': 'ROG STRIX Z590-E', 'price': 300, 'compatible': ['Intel']},
-    {'component': 'Motherboard', 'brand': 'MSI', 'model': 'MAG B550 TOMAHAWK', 'price': 200, 'compatible': ['AMD']},
-    {'component': 'Motherboard', 'brand': 'Gigabyte', 'model': 'Z590 AORUS ELITE', 'price': 250, 'compatible': ['Intel']},
-    {'component': 'Motherboard', 'brand': 'ASRock', 'model': 'B550M PRO4', 'price': 150, 'compatible': ['AMD']},
-    # Añadir más componentes según sea necesario
-]
+# Cargar los datos de los genes desde un archivo CSV
+def load_genes_from_csv(file_path):
+    genes = []
+    with open(file_path, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            row['price'] = int(row['price'])  # Convertir el precio a entero
+            if 'compatible' in row and row['compatible']:
+                row['compatible'] = row['compatible'].split(';')  # Convertir la compatibilidad a una lista
+            else:
+                row['compatible'] = []
+            genes.append(row)
+    return genes
+
+all_possible_genes = load_genes_from_csv('components.csv')
 
 # Definición de la clase Chromosome
 class Chromosome:
@@ -47,7 +31,7 @@ class Chromosome:
 
     def mutate(self):
         # Tasa de mutación
-        mutation_rate = 0
+        mutation_rate = 0.01
         # Si ocurre una mutación, se reemplaza un gen por otro aleatorio
         if random.random() < mutation_rate:
             index = random.randint(0, len(self.genes) - 1)
@@ -68,16 +52,15 @@ class GeneticAlgorithm:
         for _ in range(self.population_size):
             selected_genes = []
             budget_remaining = self.budget
-            for component_type in ['Procesador', 'Motherboard', 'GPU', 'RAM']:
+            for component_type in ['Procesador', 'Motherboard', 'GPU', 'RAM', 'Fuente de Poder']:
                 # Selección de componentes según las preferencias
                 if component_type == 'Procesador' and self.processor_preference != 'Cualquiera':
                     component_options = [gene for gene in all_possible_genes if gene['component'] == component_type and gene['brand'] == self.processor_preference]
                 elif component_type == 'GPU' and self.gpu_preference != 'Cualquiera':
                     component_options = [gene for gene in all_possible_genes if gene['component'] == component_type and gene['brand'] == self.gpu_preference]
                 elif component_type == 'Motherboard':
-                    if 'Procesador' in selected_genes[0]['component']:
-                        processor_brand = selected_genes[0]['brand']
-                        component_options = [gene for gene in all_possible_genes if gene['component'] == component_type and processor_brand in gene['compatible']]
+                    processor_brand = next((gene['brand'] for gene in selected_genes if gene['component'] == 'Procesador'), None)
+                    component_options = [gene for gene in all_possible_genes if gene['component'] == component_type and processor_brand in gene['compatible']]
                 else:
                     component_options = [gene for gene in all_possible_genes if gene['component'] == component_type]
                 
