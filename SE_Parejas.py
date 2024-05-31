@@ -53,39 +53,46 @@ class GeneticAlgorithm:
 
     def initialize_population(self):
         initial_population = []
+        robust_processors = ['ProcessorX', 'ProcessorY']  # Define robust processor models
+
         for _ in range(self.population_size):
             selected_genes = []
-            budget_remaining = self.budget
             processor_selected = False
-            motherboard_selected = False
+            robust_processor_selected = False  # Flag to track if a robust processor is selected
+
             for component_type in ['Procesador', 'Motherboard', 'GPU', 'RAM', 'Fuente de Poder']:
-                # Selección de componentes según las preferencias
                 if component_type == 'Procesador' and self.processor_preference != 'Cualquiera':
-                    component_options = [gene for gene in all_possible_genes if gene['component'] == component_type and gene['brand'] == self.processor_preference]
+                    component_options = [gene for gene in all_possible_genes if
+                                         gene['component'] == component_type and gene['brand'] == self.processor_preference]
                 elif component_type == 'GPU' and self.gpu_preference != 'Cualquiera':
-                    component_options = [gene for gene in all_possible_genes if gene['component'] == component_type and gene['brand'] == self.gpu_preference]
+                    component_options = [gene for gene in all_possible_genes if
+                                         gene['component'] == component_type and gene['brand'] == self.gpu_preference]
                 elif component_type == 'Motherboard' and processor_selected:
                     processor_brand = next((gene['brand'] for gene in selected_genes if gene['component'] == 'Procesador'), None)
-                    component_options = [gene for gene in all_possible_genes if gene['component'] == component_type and processor_brand in gene['compatible']]
+                    component_options = [gene for gene in all_possible_genes if
+                                         gene['component'] == component_type and processor_brand in gene['compatible']]
                 else:
                     component_options = [gene for gene in all_possible_genes if gene['component'] == component_type]
-                
-                # Filtrado de componentes asequibles dentro del presupuesto restante
-                affordable_options = [gene for gene in component_options if gene['price'] <= budget_remaining]
-                if affordable_options:
-                    selected_gene = random.choice(affordable_options)
+
+                if component_options:
+                    selected_gene = random.choice(component_options)
                     selected_genes.append(selected_gene)
-                    budget_remaining -= selected_gene['price']
-                    
+
                     if component_type == 'Procesador':
                         processor_selected = True
-                    elif component_type == 'Motherboard':
-                        motherboard_selected = True
-                else:
-                    selected_genes.append(random.choice(component_options))
+                        if selected_gene['model'] in robust_processors:
+                            robust_processor_selected = True  # Set flag if a robust processor is selected
+
+            if robust_processor_selected:
+                # Implicitly assign a GPU matching the caliber of the robust processor
+                compatible_gpus = [gene for gene in all_possible_genes if gene['component'] == 'GPU' and gene['brand'] == self.gpu_preference]
+                if compatible_gpus:
+                    selected_genes.append(random.choice(compatible_gpus))
+
             chromosome = Chromosome(selected_genes)
             chromosome.calculate_fitness()
             initial_population.append(chromosome)
+
         return initial_population
 
     def select_parents(self):
@@ -117,7 +124,8 @@ class GeneticAlgorithm:
                 new_population.append(child)
             self.population = new_population
         self.population.sort(key=lambda x: x.fitness)
-        return self.population[0]
+        best_chromosome = min(self.population, key=lambda x: x.fitness if x.fitness <= self.budget else float('inf'))
+        return best_chromosome
 
 # Función para ejecutar el algoritmo genético y mostrar resultados
 def run_genetic_algorithm():
@@ -126,7 +134,7 @@ def run_genetic_algorithm():
     budget = int(budget_entry.get())
     ga = GeneticAlgorithm(population_size=10, generations=20, processor_preference=processor_preference, gpu_preference=gpu_preference, budget=budget)
     best_chromosome = ga.run()
-    result_text.set("Mejor combinación:\n" + "\n".join([f"{gene['component']}: {gene['brand']} {gene['model']} - Precio: {gene['price']} - Consumo de Energía: {gene['power_consumption']}W" for gene in best_chromosome.genes]))
+    result_text.set("Mejor combinación:\n" + "\n".join([f"{gene['component']}: {gene['brand']} {gene['model']}" for gene in best_chromosome.genes]))
 
 # Crear la interfaz gráfica de usuario
 root = tk.Tk()
